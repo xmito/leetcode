@@ -3,7 +3,7 @@ from typing import List
 from itertools import combinations
 from functools import lru_cache
 
-# Parallel Courses II
+# Parallel Courses II (Hard)
 # You are given an integer n, which indicates that there are n courses labeled from 1 to n.
 # You are also given an array relations where relations[i] = [prevCourse, nextCourse],
 # representing a prerequisite relationship between course prevCourse and course nextCourse:

@@ -23,8 +23,10 @@ def removeElement(nums: List[int], val: int) -> int:
 if __name__ == "__main__":
     nums = [3,2,2,3]
     prefix = removeElement(nums, val=3)
+    assert prefix == 2
     assert nums[:prefix] == [2,2]
 
     nums = [0,1,2,2,3,0,4,2]
     prefix = removeElement(nums, val=2)
+    assert prefix == 5
     assert nums[:prefix] == [0,1,3,0,4]

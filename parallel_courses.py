@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List
 from graphlib import TopologicalSorter, CycleError
 
-# Parallel Courses
+# Parallel Courses (Medium)
 # You are given an integer n, which indicates that there are n courses labeled from 1 to n.
 # You are also given an array relations where relations[i] = [prevCoursei, nextCoursei],
 # representing a prerequisite relationship between course prevCoursei and course nextCourse:
