@@ -39,105 +39,68 @@
 # All the empty cells can be visited from the starting position.
 from typing import List, Tuple
 
-RIGHT = {
-    (-1, 0): (0, 1),
-    (0, 1): (1, 0),
-    (1, 0): (0, -1),
-    (0, -1): (-1, 0),
-}
-LEFT = {
-    (-1, 0): (0, -1),
-    (0, -1): (1, 0),
-    (1, 0): (0, 1),
-    (0, 1): (-1, 0),
-}
+DIRECTIONS = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 
 class Robot:
     def __init__(self, room: List[List[int]], pos: Tuple[int, int], dir=None):
         self.room = room
         self.pos = pos
-        self.dir = dir or (-1, 0)
+        self.dir = dir or 0
     
     def move(self) -> bool:
-        x, y = self.pos
-        dirx, diry = self.dir
-        nx, ny = x + dirx, y + diry
-        if nx < 0 or nx >= len(room):
-            return False
-        if ny < 0 or ny >= len(room[0]):
-            return False
-        if self.room[nx][ny]:
-            self.pos = (nx, ny)
-            return True
+        nx, ny = (
+            self.pos[0] + DIRECTIONS[self.dir][0],
+            self.pos[1] + DIRECTIONS[self.dir][1],
+        )
+        try:
+            if self.room[nx][ny]:
+                self.pos = (nx, ny)
+                return True
+        except IndexError:
+            pass
 
         return False
 
     def turnLeft(self):
-        self.dir = LEFT[self.dir]
+        self.dir = (self.dir - 1) % 4
 
     def turnRight(self):
-        self.dir = RIGHT[self.dir]
+        self.dir = (self.dir + 1) % 4
     
     def clean(self):
         x, y = self.pos
         self.room[x][y] = 2
 
 
+# Time complexity: O(n - m) where n is number of cells and m number of obstacles.
+# Over all recursive calls we visit each cell exactly once and do constant amount
+# of work. Specifically, we check if we can make a move in 4 directions
+# Space complexity: O(n - m) - storing visited cells in hashset
 def cleanRoom(robot):
-    room = {}
-
-    def steer(robot, pos, dir):
-        next_pos = (pos[0] + dir[0], pos[1] + dir[1])
-        if next_pos not in room:
-            return next_pos, dir
-
-        left = LEFT[dir]
-        next_pos = (pos[0] + left[0], pos[1] + left[1])
-        if next_pos not in room:
-            robot.turnLeft()
-            return next_pos, left
-
-        right = RIGHT[dir]
-        next_pos = (pos[0] + right[0], pos[1] + right[1])
-        if next_pos not in room:
-            robot.turnRight()
-            return next_pos, right
-
-        rev = RIGHT[right]
-        next_pos = (pos[0] + rev[0], pos[1] + rev[1])
-        if next_pos not in room:
-            robot.turnRight()
-            robot.turnRight()
-            return next_pos, rev
-
-        return None, dir
-
-    def dfs_visit(robot, pos, dir):
-        room[pos] = "PROCESS"
-        initial_dir = dir
-        next_pos, dir = steer(robot, pos, dir)
-        while next_pos and next_pos not in room:
-            success = robot.move()
-            if not success:
-                room[next_pos] = "WALL"
-                next_pos, dir = steer(robot, pos, dir)
-                continue
-            
-            dir = dfs_visit(robot, next_pos, dir)
-            next_pos, dir = steer(robot, pos, dir)
-        
-        # Make move back 
-        robot.clean()
-        room[pos] = "CLEANED"
-
-        reverse_dir = (initial_dir[0] * -1, initial_dir[1] * -1)
-        while dir != reverse_dir:
-            dir = RIGHT[dir]
-            robot.turnRight()
+    def go_back(robot):
+        robot.turnRight()
+        robot.turnRight()
         robot.move()
-        return reverse_dir
+        robot.turnRight()
+        robot.turnRight()
 
-    dfs_visit(robot, (0, 0), (-1, 0))
+    visited = set()
+    def backtrack(robot, pos, dir):
+        visited.add(pos)
+        robot.clean()
+
+        for i in range(4):
+            next_dir = (dir + i) % 4
+            next_pos = (
+                pos[0] + DIRECTIONS[next_dir][0],
+                pos[1] + DIRECTIONS[next_dir][1],
+            )
+            if next_pos not in visited and robot.move():
+                backtrack(robot, next_pos, next_dir)
+                go_back(robot)
+            robot.turnRight()
+
+    backtrack(robot, (0, 0), 0)
 
 
 if __name__ == "__main__":
