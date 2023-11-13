@@ -1,4 +1,4 @@
-import math
+from math import e, log
 
 # Sqrt(x) (Easy)
 # Given a non-negative integer x, return the square root of x rounded down to the
@@ -7,6 +7,19 @@ import math
 # For example, do not use pow(x, 0.5) in c++ or x ** 0.5 in python.
 # Constraints:
 # 0 <= x <= 2ˆ31 - 1
+
+
+# We can use relationship sqrt(x) = eˆ(0.5 * logx)
+# Time complexity: O(1)
+# Space complexity: O(1)
+def mySqrtCheat(x):
+    if x < 2:
+        return x
+    
+    left = int(e**(0.5 * log(x)))
+    right = left + 1
+    return left if right * right > x else right
+
 
 # We can use relationship sqrt(x) = 2 x sqrt(x/4) and use bit shifts
 # such that mySqrtHalve(x) = mySqrtHalve(x >> 2) << 1
@@ -21,6 +34,8 @@ def mySqrtHalve(x: int) -> int:
     return left if right * right > x else right
 
 
+# For x>=2, square root is smaller than x/2 and larger than 0 (0 < sqrt(x) < x/2)
+# Since we are looking for integer, we use binary search on sorted integers
 # Time complexity: O(logn)
 # Space complexity: O(1)
 def mySqrtBinary(x: int) -> int:
@@ -41,7 +56,7 @@ def mySqrtBinary(x: int) -> int:
             return mid
 
     return right
-    
+
 # Newton method: x_k+1 = 0.5 * [x_k + x/x_k] converges to sqrt(x) if x_0 = x
 # Time complexity: O(logn)
 # Space complexity: O(1)
