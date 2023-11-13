@@ -5,35 +5,34 @@ from typing import List
 # and ending position of a given target value. If target is not found in the array,
 # return [-1, -1]. You must write an algorithm with O(log n) runtime complexity.
 
-def searchLeft(nums: List[int], target:int) -> int:
-    if not len(nums):
-        return -1
-
+def searchLeft(nums: List[int], target: int) -> int:
     left, right = 0, len(nums) - 1
     while left <= right:
         mid = left + (right - left) // 2
-        if nums[mid] < target:
-            left = mid + 1
-        else:
+        if nums[mid] == target:
+            if (mid - 1 >= 0 and nums[mid - 1] != target) or mid == 0:
+                return mid
             right = mid - 1
-    
-    if left < len(nums) and nums[left] == target:
-        return left
+        elif nums[mid] > target:
+            right = mid - 1
+        else:
+            left = mid + 1
+
     return -1
 
-def searchRight(nums: List[int], target:int) -> int:
-    if not len(nums):
-        return -1
+def searchRight(nums: List[int], target: int) -> int:
     left, right = 0, len(nums) - 1
     while left <= right:
         mid = left + (right - left) // 2
-        if nums[mid] > target:
+        if nums[mid] == target:
+            if (mid + 1 < len(nums) and nums[mid + 1] != target) or mid == len(nums) - 1:
+                return mid
+            left = mid + 1
+        elif nums[mid] > target:
             right = mid - 1
         else:
             left = mid + 1
 
-    if right >= 0 and nums[right] == target:
-        return right
     return -1
 
 def searchRange(nums: List[int], target: int) -> List[int]:
@@ -41,18 +40,27 @@ def searchRange(nums: List[int], target: int) -> List[int]:
 
 
 if __name__ == '__main__':
-    res = searchRight([1,2,3,4,5,5,8,8,8,9,9,10], target=8)
     res = searchLeft([1,2,3,4,5,5,8,8,8,9,9,10], target=8)
     print(res)
     assert res == 6
 
-    res = searchRight([1], target=1)
+    res = searchRight([1,2,3,4,5,5,8,8,8,9,9,10], target=8)
+    print(res)
+    assert res == 8
+
     res = searchLeft([1], target=1)
     print(res)
     assert res == 0
 
-    res = searchRight([7,8], target=7)
+    res = searchRight([1], target=1)
+    print(res)
+    assert res == 0
+
     res = searchLeft([7,8], target=7)
+    print(res)
+    assert res == 0
+
+    res = searchRight([7,8], target=7)
     print(res)
     assert res == 0
 

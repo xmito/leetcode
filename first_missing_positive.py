@@ -27,7 +27,7 @@ def firstMissingPositiveCyclic(nums: List[int]) -> int:
                 # which we have taken the first misplaced number
                 nums[i] = -1
                 break
-    
+
     # Nums list is sorted and first missing positive is given by the first
     # position at which we encounter number that is out of range, else it
     # is length of nums array + 1

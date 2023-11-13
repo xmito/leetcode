@@ -34,7 +34,7 @@ def groupAnagrams(strs: List[str]) -> List[List[str]]:
         results[tuple(fqtable)].append(word)
 
     return list(results.values())
-    
+
 
 if __name__ == "__main__":
     res = groupAnagrams(["eat","tea","tan","ate","nat","bat"])
