@@ -22,7 +22,9 @@ class Logger:
         self.queue = deque()
         self.messages = set()
 
-    # Time complexity: O(n) - one call may expire all stored messages
+    # Time complexity: O(n) - one call may expire all stored messages. However, in one
+    # call, it can remove only those messages that had been added prior. Using aggregate
+    # analysis, amortized complexity for single operation is O(1)
     # Space complexity: O(n * m) - deque and messages set (n messages with length at most)
     # Without cleaning messages, we could do this in O(1) with single dictionary,
     # but the required memory would grow infinitely
