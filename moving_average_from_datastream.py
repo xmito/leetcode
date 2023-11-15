@@ -14,7 +14,7 @@ class MovingAverage:
     def __init__(self, size: int):
         self.size = size
         self.window = deque()
-        self.average = 0
+        self.window_sum = 0
 
     # Time complexity: O(1)
     # Space complexity: O(n)
@@ -23,13 +23,12 @@ class MovingAverage:
             self.window.append(val)
             prev = self.window.popleft()
 
-            self.average = (self.average * self.size - prev + val) / self.size
-            return self.average
+            self.window_sum -= prev - val
+            return self.window_sum / self.size
 
-        wsize = len(self.window)
-        self.average = (self.average * wsize + val) / (wsize + 1)
         self.window.append(val)
-        return self.average
+        self.window_sum += val
+        return self.window_sum / len(self.window)
 
 
 class MovingAverageCyclic:
