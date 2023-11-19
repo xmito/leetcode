@@ -1,5 +1,7 @@
 from typing import List
-from bisect import bisect_left
+from bisect import bisect_left, bisect_right
+
+from sortedcontainers import SortedSet
 
 # Range Module (Hard)
 # A Range Module is a module that tracks ranges of numbers. Design a data structure to
@@ -165,120 +167,39 @@ class RangeTree:
         return self.root.query(range)
 
 
-# Time complexity:
-# queryRange: O(logn) - bisect
-# removeRange: O(n) - new list needs to be constructed, otherwise logn
-# addRange: O(n) - new list needs to be constructed, otherwise logn
-# Space complexity: O(1)
 class RangeModuleBisect:
-
-    def __init__(self):   
-        self.ranges = []
+    def __init__(self):
+        # This list will store the endpoints of the ranges in sorted order.
+        # Every even-indexed element (0-based) represents a start point,
+        # while every odd-indexed element represents an end point.
+        self.track = []
 
     def addRange(self, left: int, right: int) -> None:
-        # If start is odd, it is some end position. It means left value is either in interval
-        # or it coincides with interval end value, what means our inserted interval follow
-        # pointed to interval. In such case, take start value of interval we point to, it will
-        # be a new start value.
-        start = bisect_left(self.ranges, left)
-        if start % 2 == 1 and start < len(self.ranges):
-            start = start - 1
-            left = self.ranges[start]
-        # In the case start is even, left is either equal to value at start or is lower than
-        # start value of interval. What happens with interval next depends on whether right 
-        # value covers any existing stored interval
-
-        end = bisect_left(self.ranges, right)
-        if end % 2 == 0 and end < len(self.ranges) and self.ranges[end] == right:
-            # right value is equal to start value of some interval, store new right value
-            right = self.ranges[end + 1]
-            end = end + 2
-        elif end % 2 == 1 and end < len(self.ranges):
-            # right value is smaller or larger than the end of interval we point to
-            right = max(right, self.ranges[end])
-            end = end + 1
-
-        self.ranges = self.ranges[:start] + [left, right] + self.ranges[end:]
+        # Find the position to insert 'left' (i) and 'right' (j).
+        i, j = bisect_left(self.track, left), bisect_right(self.track, right)
+        
+        # Modify the list:
+        # If i is even, add 'left' as it represents the start of a new range.
+        # If j is even, add 'right' as it represents the end of a new range.
+        self.track[i:j] = [left] * (i % 2 == 0) + [right] * (j % 2 == 0)
 
     def queryRange(self, left: int, right: int) -> bool:
-        if not self.ranges:
-            return False
-
-        start = bisect_left(self.ranges, left)
-        end = bisect_left(self.ranges, right)
-        if start % 2 == 0:
-            # If left value matches with interval start value, it belongs to sint interval
-            if start < len(self.ranges) and left == self.ranges[start]:
-                sint = start // 2
-            else:
-                # left value is smaller than start of interval
-                return False
-
-        elif start % 2 == 1:
-            # If left value is smaller than end value, it belongs to sint interval (bisect_left!)
-            if start < len(self.ranges) and left < self.ranges[start]:
-                sint = start // 2
-            else:
-                # left value is equal to interval end value (half-close interval!)
-                return False
-
-        # Value at end index can be at most equal to right, but right value
-        # in half-closed interval is not included
-        if end % 2 == 0:
-            return False
-        eint = end // 2
-
-        # Verify that left and right values are from the same interval
-        return sint == eint
+        # Find the position just after 'left' (i) and the position for 'right' (j).
+        i, j = bisect_right(self.track, left), bisect_left(self.track, right)
+        
+        # Return True if and only if:
+        # 1. i is equal to j, meaning 'left' and 'right' fall into the same range in the list.
+        # 2. i is odd, meaning 'left' is within a tracked range.
+        return i == j and i % 2 == 1
 
     def removeRange(self, left: int, right: int) -> None:
-        if not self.ranges:
-            return
-
-        start = bisect_left(self.ranges, left)
-        end = bisect_left(self.ranges, right)
-
-        if start != end:
-            # left value is covered by some interval and it will become new end value or
-            # in case start % 2 == 0, it sits inbetween intervals (including start value 
-            # of next interval)
-            if start % 2 == 1:
-                self.ranges[start] = left
-                start = start + 1
-
-
-            # If end % 2 == 0, right value sits inbetween two intervals, we just skip intervals
-            # between start and end. Otherwise if end % 2 == 1, right value is covered by interval
-            # and we possibly need to change it
-            if end % 2 == 1:
-                if self.ranges[end] == right:
-                    # right value is the same as end value of interval it intersects, skip it in result
-                    end = end + 1
-                else:
-                    # right value will become new start value of interval it intersects, keep it in result
-                    self.ranges[end - 1] = right
-                    end = end - 1
-
-            self.ranges = self.ranges[:start] + self.ranges[end:]
-
-        elif start > 0 and start < len(self.ranges):
-            if start % 2 == 0:
-                # if start and end are equal and even, removed interval is inbetween stored ranges
-                return
-            elif start % 2 == 1:
-                # Interval to be remove is covered by start // 2 interval
-                if self.ranges[end] == right:
-                    # Only left part of interval will be left in result
-                    self.ranges = self.ranges[:start - 1] + [self.ranges[start - 1], left] + self.ranges[end + 1:]
-                else:
-                    # Removed interval will break up single interval into two
-                    self.ranges = self.ranges[:start - 1] + [self.ranges[start - 1], left] + [right, self.ranges[end]] + self.ranges[end + 1:]
-
-        @classmethod
-        def from_list(cls, ranges: List[int]):
-            rm = cls()
-            rm.ranges = ranges
-            return rm
+        # Find the position to insert 'left' (i) and 'right' (j).
+        i, j = bisect_left(self.track, left), bisect_right(self.track, right)
+        
+        # Modify the list:
+        # If i is odd, add 'left' as it now represents the end of a range.
+        # If j is odd, add 'right' as it now represents the start of a range.
+        self.track[i:j] = [left] * (i % 2 == 1) + [right] * (j % 2 == 1)
 
 
 # Time complexity:
@@ -333,6 +254,63 @@ class RangeModuleSimple:
 
         self.ranges = new_ranges
 
+
+# Time complexity: O(logn) for operations in most cases.
+# In special cases, the time complexity cound be O(nlogn). For example delete [1,30]
+# for sorted_set_ = [1,10,11,20,21,30], all elements need to be popped.
+# Space complexity: O(n)
+class RangeModuleSortedSet:
+    def __init__(self):
+        self.sorted_set_ = SortedSet()
+
+    def addRange(self, left: int, right: int) -> None:
+        left_i = self.sorted_set_.bisect_left(left)
+        right_i = self.sorted_set_.bisect_right(right)
+        # Add [4,5] to [1, 3, 10, 100]. left_i = 2, right_i = 2, add both 4,5.
+        # Add [11,12] to [1, 3, 10, 100], left_i = 3, right_i = 3, do nothing since added elements are already tracked.    
+        if left_i == right_i:
+            if left_i % 2 == 0:
+                self.sorted_set_.add(left)
+                self.sorted_set_.add(right)
+        else:
+            # Add [3,10] to [1, 3, 10, 100], left_i = 1, right_i = 3
+            # Add [2,11] to [1, 3, 10, 100], left_i = 1, right_i = 3
+            # Pop all elements between left_i and right_i since ranges are merged.
+            for i in range(left_i, right_i):
+                self.sorted_set_.pop(left_i)
+            # Add [1,10] to [2, 3, 10, 100], left_i = 0. The left element needs to be added.
+            if left_i % 2 == 0:
+                self.sorted_set_.add(left)
+            # Add [11,101] to [2, 3, 10, 100], right_i = 4. The right element needs to be added.
+            if right_i % 2 == 0:
+                self.sorted_set_.add(right)
+
+    def queryRange(self, left: int, right: int) -> bool:
+        left_i = self.sorted_set_.bisect_right(left)
+        right_i = self.sorted_set_.bisect_left(right)
+        # Query [2,3] in [1,10], left_i = right_i = 1.    
+        return left_i == right_i and left_i % 2 == 1
+
+    def removeRange(self, left: int, right: int) -> None:
+        # Removing could be tricky since elements in the range may not be tracked. 
+        # Here the range is first added to sorted_set_ and all elements are tracked. 
+        # The range is then deleted.
+        self.addRange(left, right)
+        left_i = self.sorted_set_.bisect_left(left)
+        right_i = self.sorted_set_.bisect_right(right)
+        # Remove[1,10] from [1,10], right_i = 2, 10 needs to be popped.
+        if right_i % 2 == 0:
+            self.sorted_set_.pop(right_i-1)
+        # Remove[3,4] from [1,10], right_i = 1, 4 needs to be added to make the sorted_set_ = [1,3,4,10]
+        else:
+            self.sorted_set_.add(right)
+        # Process the right point first since operations for left may change the  "desired" index of the right point.
+        # Remove[1,10] from [1,10], left_i = 0, 1 needs to be popped.
+        if left_i % 2 == 0:
+            self.sorted_set_.pop(left_i)
+        # Remove[3,4] from [1,10], left_i = 1, 3 needs to be added to make the sorted_set_ = [1,3,4,10]
+        else:
+            self.sorted_set_.add(left)
 
 
 import sys
@@ -423,7 +401,6 @@ if __name__ == "__main__":
     assert rm.queryRange(15, 54) == False
     assert rm.queryRange(1, 64) == False
     rm.removeRange(63, 65)
-    breakpoint()
     assert rm.queryRange(55, 58) == False
     rm.removeRange(23, 44)
     assert rm.queryRange(25, 87) == False
@@ -433,7 +410,6 @@ if __name__ == "__main__":
     rm = RangeModuleBisect()
     rm.addRange(6, 8)
     rm.removeRange(7, 8)
-    breakpoint()
     rm.removeRange(8, 9)
     rm.addRange(8, 9)
     rm.removeRange(1, 3)
@@ -453,6 +429,9 @@ if __name__ == "__main__":
     assert rm.queryRange(2, 3) == True
     rm.removeRange(4, 9)
 
+    # ["RangeModule","addRange","addRange","addRange","queryRange","queryRange","queryRange","removeRange","queryRange"]
+    # [[],[10,180],[150,200],[250,500],[50,100],[180,300],[600,1000],[50,150],[50,100]]
+
     sys.exit(0)
     tree = RangeTree()    
     tree.add(Range(50, 54))
@@ -465,7 +444,6 @@ if __name__ == "__main__":
     tree.add(Range(63, 64))
     tree.add(Range(69, 70))
     tree.add(Range(58, 59))
-    breakpoint()
     #tree.add(Range(52, 65))
     #tree.add(Range(68, 69))
 
