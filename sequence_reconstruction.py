@@ -66,7 +66,7 @@ def sequenceReconstruction(nums: List[int], sequences: List[List[int]]) -> bool:
                 queue.append(neighbor)
 
     return result == nums
-    
+
 
 if __name__ == "__main__":
     res = sequenceReconstruction([4,5,7,8,6,3,2,10,9,1], [[4,5,7,8,6,3,2,10,9,1]])

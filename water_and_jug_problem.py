@@ -41,7 +41,7 @@ def canMeasureWater(jug1Capacity: int, jug2Capacity: int, targetCapacity: int) -
     if jug1Capacity + jug2Capacity < targetCapacity:
         return False
     
-    # Bezout's identity
+    # Bezout's identity: https://en.wikipedia.org/wiki/Bézout%27s_identity
     # Check if target capacity is divisible by the greatest common divisor of jug capacities
     return targetCapacity % gcd(jug1Capacity, jug2Capacity) == 0
 
