@@ -20,29 +20,6 @@ def countSubstrings(s: str) -> int:
         return sub[0][len(s) - 1]
 
 
-# Longest palindromic substring/s
-def longestPalindrome(s: str) -> tuple[int, list[str]]:
-    length = 1
-    longest = []
-
-    is_palindrome = [[False] * len(s) for i in range(len(s))]
-    for i in range(len(s)):
-        is_palindrome[i][i] = True
-        longest.append(s[i])
-
-    for slen in range(2, len(s) + 1):
-        for i in range(len(s) - slen + 1):
-            j = i + slen - 1
-            if s[i] == s[j] and (is_palindrome[i+1][j-1] or i + 1 > j - 1):
-                is_palindrome[i][j] = True
-                if j - i + 1 == length:
-                    longest.append(s[i:j+1])
-                elif j - i + 1 > length:
-                    length = j - i + 1
-                    longest = [s[i:j+1]]
-            
-    return length, longest
-
 # There is a robot on an m x n grid. The robot is initially located at the top-left
 # corner (i.e., grid[0][0]). The robot tries to move to the bottom-right corner
 # (i.e., grid[m - 1][n - 1]). The robot can only move either down or right at any
