@@ -1,38 +1,4 @@
 
-# Generate all permutations for the list of numbers
-def permute(self, nums: List[int]) -> List[List[int]]:
-    permutations = [[nums[0]]]
-    for i in range(1, len(nums)):
-        temp = []
-        for p in permutations:
-            for k in range(len(p)):
-                temp += [p[:k] + [nums[i]] + p[k:]]
-        permutations = temp
-    return permutations
-
-
-# Generate all permutations without duplicates ([1,1,2,2])
-def perrmuteUnique(nums: List[int]) -> List[List[int]]:
-    def backtrack(start):
-        if start == len(arr) - 1:
-            unique_permutations.append(arr[:])
-            return
-
-        used = set()
-        for i in range(start, len(arr)):
-            if arr[i] in used:
-                continue
-            used.add(arr[i])
-
-            arr[start], arr[i] = arr[i], arr[start]
-            backtrack(start + 1)
-            arr[start], arr[i] = arr[i], arr[start]
-
-    unique_permutations = []
-    backtrack(0)
-    return unique_permutations
-
-
 # Given an integer array nums, find the  subarray with the largest sum
 def maxSubArray(nums: List[int]) -> int:
     global_max = -float('inf')
