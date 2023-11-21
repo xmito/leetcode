@@ -58,7 +58,14 @@ def permuteUnique(nums: List[int]) -> List[List[int]]:
     return results
 
 # Time complexity Sum(k=1, N) over P(N, k) - number of steps to complete exploration
-# is exactly number of nodes in a tree. 
+# is exactly number of nodes in a tree
+# What about the work required to perform the traversal? First, let's determine how
+# many nodes are in the tree. A k-permutation of n is a permutation that doesn't use
+# all n elements. The first level in the tree holds all 1-permutations, the second
+# level holds all 2-permutations, and so on.
+# Thus, the number of nodes in the tree is equal to the sum of the number of k-permutations,
+# where k is in the range [1, n]. The number of k-permutations can be calculated as:
+# n!/(n−k)!. Number of nodes in a tree is Sum(k=1, N) over P(N, k)
 
 
 if __name__ == "__main__":
