@@ -1,62 +1,3 @@
-# Given a m x n grid filled with non-negative numbers, find a path from top left to
-# bottom right, which minimizes the sum of all numbers along its path. Solution t[i][j]:
-# min(t[i-1][j], t[i][j-1]) + grid[i][j]    if i-1 >= 0 AND j-1 >= 0
-# t[i-1][j] + grid[i][j]                    if j-1 < 0
-# t[i][j-1] + grid[i][j]                    if i-1 < 0
-# grid[i][j]                                if i==0 AND j==0
-def minPathSum(grid: List[List[int]]) -> int:
-    m, n = len(grid), len(grid[0])
-    t = [[0] * n for i in range(m)]
-    for slen in range(m + n - 2 + 1):
-        for i, j in combinations(slen, m, n):
-            if i == 0 and j == 0:
-                t[i][j] = grid[i][j]
-            elif i - 1 < 0:
-                t[i][j] = t[i][j-1] + grid[i][j]
-            elif j - 1 < 0:
-                t[i][j] = t[i-1][j] + grid[i][j]
-            else:
-                t[i][j] = min(t[i-1][j], t[i][j-1]) + grid[i][j]
-    
-    return t[m-1][n-1]
-
-# You are given an integer array nums. You are initially positioned at the
-# array's first index, and each element in the array represents your maximum
-# jump length at that position.
-def canJump(nums: List[int]) -> bool:
-    n = len(nums)
-    reach = [False for i in range(n)]
-    reach[0] = True
-    for i in range(n):
-        preach = reach.copy()
-        for j in range(n):
-            if reach[j] == True:
-                reach[j + 1:j+nums[j]+1] = [True]*nums[j]
-        if reach[n-1] == True or preach == reach:
-            break
-    return reach[n-1]
-
-
-# You are given a 0-indexed array of integers nums of length n. You are
-# initially positioned at nums[0]. Each element nums[i] represents the
-# maximum length of a forward jump from index i. In other words, if you
-# are at nums[i], you can jump to any nums[i + j] where:
-# 0 <= j <= nums[i] and
-# i + j < n
-# Return the minimum number of jumps to reach nums[n - 1]
-def jump(nums: List[int]) -> int:
-    if len(nums) < 2:
-        return 0
-    lo, hi = 0, 0
-    for i in range(1, len(nums) + 1):
-        nlo, nhi = hi + 1, 0
-        for j in range(lo, hi + 1):
-            nhi = max(nhi, j + nums[j])
-        if nhi >= len(nums) - 1:
-            break
-        lo, hi = nlo, nhi
-    return i
-
 
 # Generate all permutations for the list of numbers
 def permute(self, nums: List[int]) -> List[List[int]]:
@@ -731,3 +672,4 @@ def longestCommonPrefix(strs: List[str]) -> str:
         if not cpref:
             break
     return cpref
+
