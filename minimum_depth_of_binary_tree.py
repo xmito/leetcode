@@ -40,6 +40,7 @@ def minDepthIterative(root: Optional[TreeNode]) -> int:
         if root is None:
             continue
 
+        # First leaf we hit is at minimum depth
         if root.left is None and root.right is None:
             return depth
 

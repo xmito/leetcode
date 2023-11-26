@@ -25,6 +25,24 @@ def maxDepth(root: Optional[TreeNode]) -> int:
     return max(maxDepth(root.left), maxDepth(root.right)) + 1
 
 
+# Time complexity: O(n)
+# Space complexity: O(n)
+def maxDepthIterative(root: Optional[TreeNode]) -> int:
+    if root is None:
+        return 0
+
+    stack = [(root, 1)]
+    max_depth = 0
+    while stack:
+        root, depth = stack.pop()
+        if root is not None:
+            max_depth = max(max_depth, depth)
+            stack.append((root.left, depth + 1))
+            stack.append((root.right, depth + 1))
+    
+    return max_depth
+
+
 if __name__ == "__main__":
     root = TreeNode(3, left=TreeNode(9), right=TreeNode(20, left=TreeNode(15), right=TreeNode(7)))
     res = maxDepth(root)
