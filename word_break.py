@@ -99,7 +99,7 @@ def wordBreak(s: str, wordDict: List[str]) -> bool:
                 if word == s[size:size + word_length]:
                     substring[i] = True
                     break
-            
+
             if substring[i]:
                 break
 
